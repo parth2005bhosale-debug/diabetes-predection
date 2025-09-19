@@ -1,16 +1,29 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import pickle
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-with open('diabetes_model.pkl', 'rb') as file:
-    model = pickle.load(file)
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
 
 st.title("🩺 Diabetes Prediction App")
 
 page = st.sidebar.radio("Go to", ["Prediction", "Dashboard"])
+
+df = pd.read_csv('diabetes.csv')
+
+X = df.drop('Outcome', axis=1)
+y = df['Outcome']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+model = LogisticRegression()
+model.fit(X_train, y_train)
 
 if page == "Prediction":
     st.header("🔮 Diabetes Prediction")
@@ -27,7 +40,8 @@ if page == "Prediction":
     if st.button('Predict'):
         data = np.array([[pregnancies, glucose, blood_pressure,
                           skin_thickness, insulin, bmi, dpf, age]])
-        prediction = model.predict(data)
+        data_scaled = scaler.transform(data)
+        prediction = model.predict(data_scaled)
         if prediction[0] == 1:
             st.error("⚠️ The person is likely to have Diabetes.")
         else:
@@ -35,8 +49,6 @@ if page == "Prediction":
 
 elif page == "Dashboard":
     st.header("📊 Diabetes Dataset Dashboard")
-
-    df = pd.read_csv('diabetes.csv')
 
     st.subheader("Quick Overview")
     st.dataframe(df.head())
