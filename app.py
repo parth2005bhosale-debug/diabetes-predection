@@ -53,6 +53,21 @@ if page == "Prediction":
                           skin_thickness, insulin, bmi, dpf, age]])
         data_scaled = scaler.transform(data)
         prediction = model.predict(data_scaled)
+        probs = model.predict_proba(data_scaled)[0]
+
+        colR1, colR2 = st.columns(2)
+        with colR1:
+            st.metric("🔢 Probability of Diabetes", f"{probs[1]*100:.2f}%")
+            st.metric("📉 Probability of No Diabetes", f"{probs[0]*100:.2f}%")
+
+        with colR2:
+            fig, ax = plt.subplots(figsize=(3, 3))
+            ax.bar(['No Diabetes', 'Diabetes'], probs * 100, color=['green', 'red'])
+            ax.set_ylim(0, 100)
+            ax.set_ylabel('Probability (%)')
+            ax.set_title('Prediction Probability')
+            st.pyplot(fig)
+
         if prediction[0] == 1:
             st.error("⚠️ The person is likely to have Diabetes.")
         else:
