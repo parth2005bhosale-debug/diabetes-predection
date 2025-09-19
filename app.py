@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
-st.set_page_config(page_title="Diabetes Dashboard", layout="wide")
+st.set_page_config(page_title="Diabetes App", layout="wide")
 
 @st.cache_data
 def load_data():
@@ -28,12 +28,12 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 acc = accuracy_score(y_test, y_pred)
 
-st.title("📊 Diabetes Prediction App")
+st.title("🩺 Diabetes Prediction App")
 
-left, right = st.columns(2)
+menu = st.radio("Select Page", ["Dashboard", "Prediction"])
 
-with left:
-    st.subheader("📈 Dashboard")
+if menu == "Dashboard":
+    st.subheader("📊 Dashboard")
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Total Patients", len(df))
     c2.metric("Diabetes Cases", int(df['Outcome'].sum()))
@@ -43,7 +43,7 @@ with left:
     st.bar_chart(df['Outcome'].value_counts())
     st.line_chart(df[['Glucose','BloodPressure']][:50])
 
-with right:
+elif menu == "Prediction":
     st.subheader("🤖 Predict Diabetes")
     p1, p2 = st.columns(2)
     with p1:
